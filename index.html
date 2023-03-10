@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dot Collector</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+        button {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dot Collector</h1>
+    <canvas id="myCanvas" width="480" height="320"></canvas>
+    <p>Score: <span id="score">0</span></p>
+    <p>Rebirths: <span id="rebirths">0</span></p>
+    <button id="upgradeSizeButton">Upgrade Dot Size (Cost: 10)</button>
+    <button id="upgradeCountButton">Upgrade Dot Count (Cost: 25)</button>
+    <button id="rebirthButton">Rebirth (Cost: 1000)</button>
+    <script>
+        // Get canvas and context
+        var canvas = document.getElementById("myCanvas");
+        var ctx = canvas.getContext("2d");
+
+        // Dot variables
+        var dotCount = 10;
+        var dotSize = 10;
+        var dotColor = "blue";
+
+        // Player variables
+        var playerX = canvas.width/2;
+        var playerY = canvas.height/2;
+        var playerSpeed = 5;
+
+        // Point variables
+        var points = [];
+        var maxPoints = 20;
+        var pointValue = 1;
+
+        // Score variables
+        var score = 0;
+        var rebirths = 0;
+
+        // Button variables
+        var upgradeSizeButton = document.getElementById("upgradeSizeButton");
+        var upgradeCountButton = document.getElementById("upgradeCountButton");
+        var rebirthButton = document.getElementById("rebirthButton");
+
+        // Add event listeners to buttons
+        upgradeSizeButton.addEventListener("click", upgradeSize);
+        upgradeCountButton.addEventListener("click", upgradeCount);
+        rebirthButton.addEventListener("click", rebirth);
+
+        // Move player with arrow keys
+        document.addEventListener("keydown", function(event) {
+            if(event.keyCode === 37) { // Left arrow key
+                playerX -= playerSpeed;
+            }
+            else if(event.keyCode === 38) { // Up arrow key
+                playerY -= playerSpeed;
+            }
+            else if(event.keyCode === 39) { // Right arrow key
+                playerX += playerSpeed;
+            }
+            else if(event.keyCode === 40) { // Down arrow key
+                playerY += playerSpeed;
+            }
+        });
+
+        // Generate initial points
+        generatePoints();
+
+        // Game loop
+        function gameLoop() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
+            ctx.beginPath();
+            ctx.arc(playerX, playerY, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = "green";
+            ctx.fill();
+
+            // Draw points
+            for(var i = 0; i < points.length; i++) {
+                var point = points[i];
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, dotSize, 0, 2 * Math.PI);
+                ctx.fillStyle = dotColor;
+                ctx.fill();
+
+                // Check collision with player
+                var distance = Math.sqrt(Math.pow(playerX - point.x, 2) + Math.pow(playerY - point.y, 2));
+                if(distance < 10) {
+                    score += pointValue;
+                    document.getElementById("score").innerHTML = score;
+                    points.splice(i, 1);
+                    i--;
+                }
